@@ -9,6 +9,11 @@ builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.AddDataBase(builder.Configuration);
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 

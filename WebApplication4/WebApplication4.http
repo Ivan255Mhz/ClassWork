@@ -33,4 +33,9 @@ Accept: application/json
 
 ###
 
-POST {{host}}/api/toy/Ìוק/100000/1/1
+POST {{host}}/api/toy/Ìÿק/100/1/1
+
+###
+
+GET {{host}}/api/toy?cat=ûפגפ&man=פûגפûג
+Accept: application/json

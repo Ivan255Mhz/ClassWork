@@ -27,11 +27,42 @@ public class ToyController : ControllerBase
     }
 
 
-    
 
 
-
+    // api/toy?cat=1&man=1
     [HttpGet]
+    public async Task<IActionResult> GetByCatIdEndManId
+        (
+        [FromQuery] int? cat,
+        [FromQuery] int? man,
+        CancellationToken ct
+        )
+    {
+        var toyList = await _toyRepository.GetAllAsync(ct);
+
+        if( toyList is null ) return NotFound();
+    
+        var res = toyList.Where(x=> x.ManufactureId==man && x.CategoryId==cat);
+
+        if( !res.Any()) return NotFound();
+
+        return Ok(res);
+
+    }
+
+
+
+    [HttpGet("{id:int}")]
+
+    public async Task<IActionResult> GetById([FromRoute]int id , CancellationToken ct)
+    {
+        var toy = _toyRepository.GetByIdAsync(id,ct);
+
+        if (toy is null) return BadRequest();
+        return Ok(toy);
+           
+    }
+
 
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
