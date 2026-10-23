@@ -1,0 +1,36 @@
+@host = http://localhost:5039
+
+###
+
+GET {{host}}/api/home
+Accept: application/json
+
+
+###
+
+GET {{host}}/api/category
+Accept: application/json
+
+
+###
+
+POST {{host}}/api/category/Спор
+
+###
+GET {{host}}/api/manufactor
+Accept: application/json
+
+###
+
+POST {{host}}/api/manufactor/ДетскийМир
+
+
+
+###
+
+GET {{host}}/api/toy
+Accept: application/json
+
+###
+
+POST {{host}}/api/toy/Меч/100000/1/1

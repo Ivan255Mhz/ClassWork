@@ -1,0 +1,25 @@
+﻿@page
+@model WebApplication4.Pages.ToysModel
+
+@if(!Model.Toys.Any())
+{
+    <h1>Игрушек нет</h1>
+}
+else
+{
+    foreach(var toys in Model.Toys)
+    {
+       <p>@toys.Name    @toys.Prise</p>
+    }
+}
+
+
+
+<form method="post">
+    <input asp-for="NewToyName" placeholder="Название игрушки" required/>
+    <input asp-for="NewToyPrise" placeholder="Цена игрушки" required />
+    <button type="submit"> Отправить</button>
+</form>
+
+
+
