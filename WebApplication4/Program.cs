@@ -1,10 +1,12 @@
 using WebApplication4.Data;
+using WebApplication4.Servise;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.AddDataBase(builder.Configuration);
+builder.Services.AddScoped<IToyServices,ToyService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

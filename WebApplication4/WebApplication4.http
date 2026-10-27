@@ -38,9 +38,38 @@ Accept: application/json
 
 ###
 
-POST {{host}}/api/toy/Мяч/100/1/1
+POST {{host}}/api/toy/Шахматы/100/2/1
 
 ###
 
 GET {{host}}/api/toy?cat=ыфвф&man=фывфыв
 Accept: application/json
+
+
+###
+POST {{host}}/api/toy
+Content-type: application/json
+
+{
+  "name": "Обруч",
+  "prise": "550",
+  "categoryid": "1",
+  "manufacturerid": "1"
+}
+
+###
+DELETE {{host}}/api/category/1
+
+
+
+###
+
+PUT {{host}}/api/toy/7
+Content-type: application/json
+
+{
+  "name": "Конструктор",
+  "prise": "9900",
+  "categoryid": "1",
+  "manufacturerid": "1"
+}

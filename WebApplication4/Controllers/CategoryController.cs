@@ -34,6 +34,16 @@ namespace WebApplication4.Controllers
 
         }
 
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteById(int id,CancellationToken ct)
+        {
+            var result = await _repository.GetByIdAsync(id, ct);
+            if (result is null) return BadRequest("sadadasdasdadadad");
+
+             _repository.Remove(result);
+            _repository.SaveChagesAsync(ct);
+            return NoContent();
+        }
 
     }
 }
