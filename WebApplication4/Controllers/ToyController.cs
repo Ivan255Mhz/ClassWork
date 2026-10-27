@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApplication4.Data.Repositories;
 using WebApplication4.Entities;
+using WebApplication4.Pages;
 
 namespace WebApplication4.Controllers;
 
@@ -28,8 +29,18 @@ public class ToyController : ControllerBase
 
 
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById([FromRoute]int id , CancellationToken ct)
+    {
+        var toy = await _toyRepository.GetByIdAsync(id, ct);
 
-    // api/toy?cat=1&man=1
+        return toy is null ? NotFound() : Ok(toy);
+    }
+
+
+
+
+  
     [HttpGet]
     public async Task<IActionResult> GetByCatIdEndManId
         (
@@ -52,16 +63,16 @@ public class ToyController : ControllerBase
 
 
 
-    [HttpGet("{id:int}")]
+    //[HttpGet("{id:int}")]
 
-    public async Task<IActionResult> GetById([FromRoute]int id , CancellationToken ct)
-    {
-        var toy = _toyRepository.GetByIdAsync(id,ct);
+    //public async Task<IActionResult> GetById([FromRoute]int id , CancellationToken ct)
+    //{
+    //    var toy = _toyRepository.GetByIdAsync(id,ct);
 
-        if (toy is null) return BadRequest();
-        return Ok(toy);
+    //    if (toy is null) return BadRequest();
+    //    return Ok(toy);
            
-    }
+    //}
 
 
     public async Task<IActionResult> GetAll(CancellationToken ct)

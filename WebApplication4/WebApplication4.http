@@ -28,7 +28,7 @@ POST {{host}}/api/manufactor/ДетскийМир
 
 ###
 
-GET {{host}}/api/toy
+GET {{host}}/api/toy/1
 Accept: application/json
 
 ###
