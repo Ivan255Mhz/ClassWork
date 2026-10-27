@@ -23,12 +23,17 @@ Accept: application/json
 ###
 
 POST {{host}}/api/manufactor/ДетскийМир
+###
+
+
+
+POST {{host}}/api/toy?name=Машинка&prise=50
 
 
 
 ###
 
-GET {{host}}/api/toy/1
+GET {{host}}/api/toy
 Accept: application/json
 
 ###

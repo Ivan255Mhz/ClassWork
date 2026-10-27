@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using WebApplication4.Data;
 using WebApplication4.Data.Repositories;
 using WebApplication4.Entities;
 using WebApplication4.Pages;
@@ -14,23 +17,27 @@ public class ToyController : ControllerBase
     private readonly IRepository<Category>? _categoryRepository;
     private readonly IRepository<Manufacture>? _manufactureRepository;
 
+    private readonly AppDbContext _appDbContext;
+
 
 
 
 
     public ToyController(IRepository<Toy>? toyRepository,
                          IRepository<Category>? categoryRepository,
-                         IRepository<Manufacture>? manufactureRepository)
+                         IRepository<Manufacture>? manufactureRepository,
+                         AppDbContext appDbContext)
     {
         _toyRepository = toyRepository;
         _categoryRepository = categoryRepository;
         _manufactureRepository = manufactureRepository;
+        _appDbContext = appDbContext;
     }
 
 
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById([FromRoute]int id , CancellationToken ct)
+    public async Task<IActionResult> GetById(int id , CancellationToken ct)
     {
         var toy = await _toyRepository.GetByIdAsync(id, ct);
 
@@ -38,28 +45,42 @@ public class ToyController : ControllerBase
     }
 
 
+    // url/api/toy?name=Машинка&prise=50
 
-
-  
-    [HttpGet]
-    public async Task<IActionResult> GetByCatIdEndManId
-        (
-        [FromQuery] int? cat,
-        [FromQuery] int? man,
-        CancellationToken ct
-        )
+    [HttpPost]
+    public async Task<IActionResult> AddToy([FromQuery]string? name,
+                                            [FromQuery]decimal? prise,CancellationToken ct)
     {
-        var toyList = await _toyRepository.GetAllAsync(ct);
+        if (name is null || prise is null) return BadRequest();
 
-        if( toyList is null ) return NotFound();
-    
-        var res = toyList.Where(x=> x.ManufactureId==man && x.CategoryId==cat);
-
-        if( !res.Any()) return NotFound();
-
-        return Ok(res);
-
+        var toy = new Toy { Name=name,Prise=(decimal)prise,CategoryId=1,ManufactureId=1 };
+        await _toyRepository.AddAsync(toy, ct);
+        await _toyRepository.SaveChagesAsync(ct);
+        return Ok(toy);
     }
+
+
+
+
+    //[HttpGet]
+    //public async Task<IActionResult> GetByCatIdEndManId
+    //    (
+    //    [FromQuery] int? cat,
+    //    [FromQuery] int? man,
+    //    CancellationToken ct
+    //    )
+    //{
+    //    var toyList = await _toyRepository.GetAllAsync(ct);
+
+    //    if( toyList is null ) return NotFound();
+
+    //    var res = toyList.Where(x=> x.ManufactureId==man && x.CategoryId==cat);
+
+    //    if( !res.Any()) return NotFound();
+
+    //    return Ok(res);
+
+    //}
 
 
 
@@ -71,13 +92,13 @@ public class ToyController : ControllerBase
 
     //    if (toy is null) return BadRequest();
     //    return Ok(toy);
-           
+
     //}
 
-
+    [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        return Ok(await _toyRepository.GetAllAsync(ct));
+        return Ok( await _appDbContext.Toys.Include(c=>c.Category).ThenInclude(c=>c.Toys).Include(m=>m.Manufacture).ThenInclude(m=>m.Toys).ToListAsync());
     }
 
 
