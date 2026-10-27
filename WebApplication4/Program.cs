@@ -2,9 +2,6 @@ using WebApplication4.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.AddDataBase(builder.Configuration);
@@ -17,7 +14,6 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 
