@@ -11,6 +11,7 @@ public class AppDbContext:DbContext
     public DbSet<Toy> Toys => Set<Toy>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Manufacture> Manufactures => Set<Manufacture>();
+    public DbSet<LogEntry> Logs => Set<LogEntry>();
 
 }
 
