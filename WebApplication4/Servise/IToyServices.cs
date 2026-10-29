@@ -8,4 +8,6 @@ public interface IToyServices
 {
     Task<Toy> CreateToy(CreateToyDto dto, CancellationToken ct = default);
     Task<Toy> UpdateToy(CreateToyDto dto, CancellationToken ct = default);
+    Task<List<Toy>> GetAllAsync(CancellationToken ct = default);
+    Task<Toy> GetByIdAsync(int id, CancellationToken ct = default);
 }

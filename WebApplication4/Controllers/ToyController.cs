@@ -16,10 +16,9 @@ namespace WebApplication4.Controllers;
 public class ToyController : ControllerBase
 {
 
-    private readonly ToyService _services;
-    
+    private readonly IToyServices _services;
 
-    public ToyController(ToyService? services)
+    public ToyController(IToyServices services)
     {
         _services = services;
     }

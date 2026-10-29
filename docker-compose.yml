@@ -1,0 +1,32 @@
+services:
+  toydb:
+    image: postgres:16
+    container_name: toydb
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: toyshop
+      POSTGRES_PASSWORD: toyshop_dev_password
+      POSTGRES_DB: toyshop
+    ports:
+      - "5433:5432"
+    volumes:
+      - toydb_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      # Эта настройка включает "режим рабочего стола" — не нужно будет
+      # вводить мастер-пароль при первом входе.
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80" # pgAdmin будет доступен на http://localhost:5050
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  toydb_data:
+  pgadmin_data:
