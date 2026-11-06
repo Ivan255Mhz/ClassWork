@@ -1,8 +1,15 @@
 @host = http://localhost:5039
 
+
+###
+GET {{host}}/admin
+###
+GET {{host}}/api/toy/error
+
 ###
 
 GET {{host}}/api/home
+X-Client-Version: 2.1
 Accept: application/json
 
 

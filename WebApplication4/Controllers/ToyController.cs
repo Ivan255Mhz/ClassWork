@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using WebApplication4.Data;
@@ -42,10 +43,19 @@ public class ToyController : ControllerBase
     /// <param 
     /// <returns></returns>
 
+
+    [HttpGet("error")]
+    public IActionResult TriggerError()
+    {
+        throw new Exception("Это тестовая ошибка");
+    }
+
+
     [HttpGet]
     public async Task<IActionResult> Get()
     {
         _logger.LogInformation("Запрошен список всех игрушек");
+      
         return Ok(await _services.GetAllAsync());
     }
 

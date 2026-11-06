@@ -37,6 +37,7 @@ public class DbLogger : IDbLogger
         }
 
     }
+
 }
 
 public static class LogLevel
