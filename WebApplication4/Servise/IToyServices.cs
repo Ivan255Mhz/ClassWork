@@ -10,4 +10,5 @@ public interface IToyServices
     Task<Toy> UpdateToy(CreateToyDto dto, CancellationToken ct = default);
     Task<List<Toy>> GetAllAsync(CancellationToken ct = default);
     Task<Toy> GetByIdAsync(int id, CancellationToken ct = default);
+    Task Remove(CreateToyDto dto);
 }
