@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
@@ -28,7 +29,7 @@ public class TestController : ControllerBase
         _dbLogger = dbLogger;
     }
 
-
+    [Authorize]
     [ServiceFilter(typeof(RespHeadFilter))]
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -48,7 +49,7 @@ public class TestController : ControllerBase
     }
 
 
-
+    [Authorize(Policy = "OnliItAdmin")]
     [ServiceFilter(typeof(LogFilter))]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)

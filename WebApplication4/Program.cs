@@ -1,13 +1,33 @@
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json.Serialization;
 using WebApplication4.Data;
 using WebApplication4.Filters;
+using WebApplication4.Helpers;
 using WebApplication4.Middleware;
 using WebApplication4.Servise;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//401 Unauthorized - Аутенификация код 
+//403 Forbidden -  Авторизация код 
+
+
+builder.Services.AddAuthentication("Custom")
+    .AddScheme<AuthenticationSchemeOptions, MyHandler>("Custom", null);
+
+builder.Services.AddAuthorization(op =>
+{
+    op.AddPolicy("OnliItAdmin", policy =>
+    {
+        policy.RequireRole("Admin");
+        policy.RequireClaim("Deportament", "IT");
+    });
+});
 
 
 builder.Services.AddControllers(op=>
@@ -45,7 +65,10 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseHttpsRedirection();  
+app.UseHttpsRedirection();
+
+app.UseRouting();
+app.UseAuthentication();
 
 app.UseAuthorization();
 app.UseMiddleware<ServerTimeMiddleware>();

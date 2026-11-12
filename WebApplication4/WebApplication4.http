@@ -1,4 +1,4 @@
-@host = http://localhost:5039
+@host = https://localhost:7059
 
 
 ###
@@ -7,18 +7,13 @@ GET {{host}}/admin
 GET {{host}}/api/toy/error
 
 ###
-POST {{host}}/api/test
+GET {{host}}/api/test
+Authorization: SecretPass
 
-Content-type: application/json
-{
-  "name": "Обруч 2.0",
-  "prise": "101050",
-  "categoryid": "2",
-  "manufacturerid": "1"
-}
 
 ###
-
+GET {{host}}/api/test/9
+Authorization: SecretPass
 
 GET {{host}}/api/home
 X-Client-Version: 2.1
