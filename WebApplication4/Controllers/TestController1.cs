@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Text.Json;
 using WebApplication4.Data.Dtos;
 using WebApplication4.Entities;
+using WebApplication4.Filters;
 using WebApplication4.Servise;
 
 namespace WebApplication4.Controllers;
@@ -26,32 +28,68 @@ public class TestController : ControllerBase
         _dbLogger = dbLogger;
     }
 
+
+    [ServiceFilter(typeof(RespHeadFilter))]
     [HttpGet]
     public async Task<IActionResult> GetAll()
+        
     {
         var result = await _services.GetAllAsync();
 
         return Ok(result);
     }
 
+    [ServiceFilter(typeof(ToyExFilter))]
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        var ex = new ArithmeticException();
+        throw ex;
+    }
+
+
+
+    [ServiceFilter(typeof(LogFilter))]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
+        var sw = Stopwatch.StartNew();
+        var result =  await _services.GetByIdAsync(id);
+        sw.Stop();
 
-        var result = _services.GetByIdAsync(id);
+        Console.WriteLine($"GetById занял {sw.ElapsedMilliseconds} мс");
+
+        if(result is null)
+        {
+            Console.WriteLine("Ноль");
+        }
         return Ok(result);  
     }
 
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateToyDto dto)
     {
-        return Ok(await _services.CreateToy(dto));
+        var sw = Stopwatch.StartNew();
+
+        var result = await _services.CreateToy(dto);
+
+        sw.Stop();
+
+        Console.WriteLine($"Create занял {sw.ElapsedMilliseconds} мс");
+
+        return Ok(result);
     }
 
     [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] CreateToyDto dto)
     {
+        var sw = Stopwatch.StartNew();
+
         await _services.Remove(dto);
+        sw.Stop();
+
+        Console.WriteLine($"Delete занял {sw.ElapsedMilliseconds} мс");
         return NoContent();
     }
 }
