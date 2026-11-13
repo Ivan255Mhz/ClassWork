@@ -13,22 +13,25 @@ using WebApplication4.Servise;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//401 Unauthorized - Аутенификация код 
-//403 Forbidden -  Авторизация код 
+
+var secretKey = SecretKey.GetKey(); // ключ которым мы будем шифроват ьи расшифровывать JWT;
 
 
-builder.Services.AddAuthentication("Custom")
-    .AddScheme<AuthenticationSchemeOptions, MyHandler>("Custom", null);
-
-builder.Services.AddAuthorization(op =>
-{
-    op.AddPolicy("OnliItAdmin", policy =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer( op =>
     {
-        policy.RequireRole("Admin");
-        policy.RequireClaim("Deportament", "IT");
-    });
-});
+        op.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false, // проверка кто выдал
+            ValidateAudience = false, // проверка для кого выдан 
+            ValidateLifetime = true, // проверка срока дейсвия 
 
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) // проверка подписи нашем ключем 
+        };
+      
+    });
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers(op=>
 {
@@ -69,10 +72,10 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();
-
 app.UseAuthorization();
 app.UseMiddleware<ServerTimeMiddleware>();
 app.UseMiddleware<AuditBodyMiddlewere>();
+app.UseMiddleware<UserMiddleware>();
 app.MapControllers();
 app.MapRazorPages();
 

@@ -13,5 +13,7 @@ public class AppDbContext:DbContext
     public DbSet<Manufacture> Manufactures => Set<Manufacture>();
     public DbSet<LogEntry> Logs => Set<LogEntry>();
 
+    public DbSet<User> Users => Set<User>();
+
 }
 
