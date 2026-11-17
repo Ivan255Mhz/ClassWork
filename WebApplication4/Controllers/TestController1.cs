@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Threading.Channels;
 using WebApplication4.Data.Dtos;
 using WebApplication4.Entities;
 using WebApplication4.Filters;
@@ -29,14 +30,16 @@ public class TestController : ControllerBase
         _dbLogger = dbLogger;
     }
 
-    [Authorize]
-    [ServiceFilter(typeof(RespHeadFilter))]
+
+
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromServices] Channel<string> emaiQueue)
         
     {
+
         var result = await _services.GetAllAsync();
 
+        await emaiQueue.Writer.WriteAsync("Промо-письмо для получения игрушек");
         return Ok(result);
     }
 

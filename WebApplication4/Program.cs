@@ -5,15 +5,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Serialization;
+using WebApplication4.BackgroundJobs;
 using WebApplication4.Data;
 using WebApplication4.Filters;
 using WebApplication4.Helpers;
 using WebApplication4.Middleware;
 using WebApplication4.Servise;
+using System.Threading.Channels;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
 var secretKey = SecretKey.GetKey(); // ключ которым мы будем шифроват ьи расшифровывать JWT;
 
 
@@ -48,6 +48,9 @@ builder.Services.AddScoped<ToyExFilter>();
 builder.Services.AddScoped<RespHeadFilter>();
 builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddScoped<LogFilter>();
+builder.Services.AddSingleton(Channel.CreateUnbounded<string>());
+builder.Services.AddHostedService<LogCleanService>();
+builder.Services.AddHostedService<EmailWorker>();
 builder.Services.AddControllers()
  
     .AddJsonOptions(options =>
