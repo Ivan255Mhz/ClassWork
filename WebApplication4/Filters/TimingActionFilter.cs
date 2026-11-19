@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using WebApplication4.Servise;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Filters;
+using WebApplication4.Services;
 
 namespace WebApplication4.Filters;
 
+/// <summary>
+/// Глобальный фильтр: измеряет время выполнения действия и пишет его в БД.
+/// </summary>
 public class TimingActionFilter : IAsyncActionFilter
 {
-
     private readonly IDbLogger _logger;
 
     public TimingActionFilter(IDbLogger logger)
@@ -17,15 +18,15 @@ public class TimingActionFilter : IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var sw = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
+        var actionName = context.ActionDescriptor.DisplayName ?? "Неизвестное действие";
 
-        var actionName = context.ActionDescriptor.DisplayName;
+        await next();
 
-        var resultContex = await next();
+        stopwatch.Stop();
 
-        sw.Stop();
-
-        await _logger.LogAsync("[FILTER]", $"[FILTER] {actionName} выполнен за {sw.ElapsedMilliseconds} ms");
-
+        await _logger.LogAsync(
+            DbLogLevel.Info,
+            $"{actionName} выполнен за {stopwatch.ElapsedMilliseconds} мс");
     }
 }

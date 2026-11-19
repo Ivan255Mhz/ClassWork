@@ -1,49 +1,53 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication4.Data.Repositories;
 using WebApplication4.Entities;
 
-namespace WebApplication4.Controllers
+namespace WebApplication4.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class CategoryController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CategoryController : ControllerBase
+    private readonly IRepository<Category> _repository;
+
+    public CategoryController(IRepository<Category> repository)
     {
-        private readonly IRepository<Category>? _repository;
+        _repository = repository;
+    }
 
-        public CategoryController(IRepository<Category>? repository)
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        return Ok(await _repository.GetAllAsync(ct));
+    }
+
+    [HttpPost("{name}")]
+    public async Task<IActionResult> Create(string name, CancellationToken ct)
+    {
+        var category = new Category
         {
-            _repository = repository;
+            Name = name
+        };
+
+        await _repository.AddAsync(category, ct);
+        await _repository.SaveChangesAsync(ct);
+
+        return Ok(category);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteById(int id, CancellationToken ct)
+    {
+        var category = await _repository.GetByIdAsync(id, ct);
+
+        if (category is null)
+        {
+            return NotFound($"Категория с id {id} не найдена");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken ct)
-        {
-            return Ok(await _repository.GetAllAsync(ct));
-        }
-        [HttpPost("{name}")]
-        public async Task<IActionResult> Create(string name, CancellationToken ct)
-        {
-            var category = new Category
-            {
-                Name = name
-            };
-            await _repository.AddAsync(category, ct);
-            await _repository.SaveChagesAsync(ct);
-            return Ok(category);
+        _repository.Remove(category);
+        await _repository.SaveChangesAsync(ct);
 
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteById(int id,CancellationToken ct)
-        {
-            var result = await _repository.GetByIdAsync(id, ct);
-            if (result is null) return BadRequest("sadadasdasdadadad");
-
-             _repository.Remove(result);
-            _repository.SaveChagesAsync(ct);
-            return NoContent();
-        }
-
+        return NoContent();
     }
 }

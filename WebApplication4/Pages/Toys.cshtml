@@ -1,25 +1,22 @@
 ﻿@page
 @model WebApplication4.Pages.ToysModel
 
-@if(!Model.Toys.Any())
+<h1>Игрушки</h1>
+
+@if (!Model.Toys.Any())
 {
-    <h1>Игрушек нет</h1>
+    <p>Игрушек пока нет.</p>
 }
 else
 {
-    foreach(var toys in Model.Toys)
+    foreach (var toy in Model.Toys)
     {
-       <p>@toys.Name    @toys.Prise</p>
+        <p>@toy.Name — @toy.Prise</p>
     }
 }
 
-
-
 <form method="post">
-    <input asp-for="NewToyName" placeholder="Название игрушки" required/>
+    <input asp-for="NewToyName" placeholder="Название игрушки" required />
     <input asp-for="NewToyPrise" placeholder="Цена игрушки" required />
-    <button type="submit"> Отправить</button>
+    <button type="submit">Отправить</button>
 </form>
-
-
-

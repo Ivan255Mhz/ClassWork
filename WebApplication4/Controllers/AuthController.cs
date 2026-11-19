@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WebApplication4.Controllers;
 
@@ -11,12 +10,18 @@ namespace WebApplication4.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly IConfiguration _config;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(IConfiguration config)=> _config = config;
+    public AuthController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
+    /// <summary>
+    /// Тестовый вход. Возвращает JWT для учебных запросов.
+    /// </summary>
     [HttpPost("login")]
-    public IActionResult Login(string userName, string password)
+    public IActionResult Login([FromQuery] string userName, [FromQuery] string password)
     {
         if (userName != "admin" || password != "1234")
         {
@@ -26,23 +31,23 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, userName),
-            new Claim(ClaimTypes.Role, "Админ")
+            new Claim(ClaimTypes.Role, "Admin")
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var jwtKey = _configuration["Jwt:Key"]
+            ?? throw new InvalidOperationException("В appsettings.json не задан Jwt:Key");
 
-        var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
+            issuer: _configuration["Jwt:Issuer"],
             claims: claims,
-            expires:DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds
-            );
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: credentials);
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-        return Ok(new { token = tokenString});
+
+        return Ok(new { token = tokenString });
     }
-
-
 }

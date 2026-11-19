@@ -1,33 +1,32 @@
-﻿namespace WebApplication4.Middleware;
+﻿using System.Globalization;
 
-public class ClientVersionMiddlewere
+namespace WebApplication4.Middleware;
+
+/// <summary>
+/// Проверяет версию клиента по заголовку X-Client-Version.
+/// </summary>
+public class ClientVersionMiddleware
 {
+    private const double MinimumVersion = 2.0;
+
     private readonly RequestDelegate _next;
 
-    public ClientVersionMiddlewere(RequestDelegate next)
+    public ClientVersionMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue("X-Client-Version", out var versionStr))
-
+        if (context.Request.Headers.TryGetValue("X-Client-Version", out var versionValue)
+            && double.TryParse(versionValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var version)
+            && version < MinimumVersion)
         {
-            Console.WriteLine("Начало");
-            if(double.TryParse(versionStr,System.Globalization.CultureInfo.InvariantCulture ,out double version))
-            {
-                Console.WriteLine("Распарсили");
-                if (version < 2.0)
-                {
-                    context.Response.StatusCode = 400;
-                    await context.Response.WriteAsync("Ошибка: обновите версию ПО");
-                    return;
-                }
-            }
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("Ошибка: обновите версию ПО");
+            return;
+        }
 
-            await _next(context);
-        }  
-
+        await _next(context);
     }
 }

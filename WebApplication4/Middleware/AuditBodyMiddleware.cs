@@ -1,40 +1,33 @@
-﻿using System;
-using WebApplication4.Servise;
+﻿using WebApplication4.Services;
 
 namespace WebApplication4.Middleware;
 
-public class AuditBodyMiddlewere
+/// <summary>
+/// Пишет тело POST/DELETE-запросов в журнал БД.
+/// </summary>
+public class AuditBodyMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public AuditBodyMiddlewere(RequestDelegate next)
+    public AuditBodyMiddleware(RequestDelegate next)
     {
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context , IDbLogger logger)
+    public async Task InvokeAsync(HttpContext context, IDbLogger logger)
     {
-        Console.WriteLine("Начало");
         context.Request.EnableBuffering();
-        Console.WriteLine("Создали буфер");
-        var reader = new StreamReader(context.Request.Body);
-        
-        var bodyStr =await reader.ReadToEndAsync();
-        Console.WriteLine("Прочитали");
-        context.Request.Body.Position = 0;
-        Console.WriteLine("Сдвинули в 0");
 
-        if (context.Request.Method == "POST" || context.Request.Method == "DELETE")
+        using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+        var body = await reader.ReadToEndAsync();
+        context.Request.Body.Position = 0;
+
+        if ((context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Delete)
+            && !string.IsNullOrWhiteSpace(body))
         {
-            Console.WriteLine("Прошли условие 1");
-            if (!string.IsNullOrWhiteSpace(bodyStr))
-            {
-                Console.WriteLine("Отработано тело " + bodyStr);
-                 await logger.LogAsync("[INFO]",bodyStr);
-            }
+            await logger.LogAsync(DbLogLevel.Info, body);
         }
 
         await _next(context);
-
     }
 }

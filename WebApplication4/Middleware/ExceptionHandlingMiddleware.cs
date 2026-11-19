@@ -1,9 +1,12 @@
 ﻿using System.Net;
-using WebApplication4.Servise;
 using System.Text.Json;
+using WebApplication4.Services;
 
 namespace WebApplication4.Middleware;
 
+/// <summary>
+/// Перехватывает необработанные исключения и возвращает JSON-ответ.
+/// </summary>
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -21,14 +24,20 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception ex)
         {
-            await dbLogger.LogAsync(Servise.LogLevel.Error, ex.Message, ex.StackTrace);
+            await dbLogger.LogAsync(DbLogLevel.Error, ex.Message, ex.StackTrace);
+
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
+            context.Response.Clear();
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 
             var response = new { Error = "Внутренняя ошибка сервера. Мы работаем над этим" };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-
         }
     }
 }

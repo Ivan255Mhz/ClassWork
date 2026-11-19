@@ -1,99 +1,86 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Channels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading.Channels;
+using WebApplication4.BackgroundJobs;
 using WebApplication4.Data.Dtos;
-using WebApplication4.Entities;
 using WebApplication4.Filters;
-using WebApplication4.Servise;
+using WebApplication4.Services;
 
 namespace WebApplication4.Controllers;
 
-// реализовать 4 endpoints получить все игрушки , получить по айди , добавить , удалить 
-
-// задача от заказчика в ответе получат ьвремя сервера по ключу X-Server-Time 
-
-// логировать тело пост запроса в бд 
-
+/// <summary>
+/// Учебный контроллер: демонстрация фильтров, фоновых задач и авторизации.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class TestController : ControllerBase
 {
-    private readonly IToyServices _services;
-    private readonly IDbLogger _dbLogger;
+    private readonly IToyService _toyService;
 
-    public TestController(IToyServices services, IDbLogger dbLogger)
+    public TestController(IToyService toyService)
     {
-        _services = services;
-        _dbLogger = dbLogger;
+        _toyService = toyService;
     }
 
+    /// <summary>
+    /// Состояние фоновых задач.
+    /// </summary>
+    [HttpGet("state")]
+    public IActionResult GetState([FromServices] WorkerHealthState state)
+    {
+        if (!state.IsAlive)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Фоновые задачи зависли");
+        }
 
+        return Ok("Все системы работают");
+    }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromServices] Channel<string> emaiQueue)
-        
+    public async Task<IActionResult> GetAll([FromServices] Channel<string> emailQueue, CancellationToken ct)
     {
+        var toys = await _toyService.GetAllAsync(ct);
 
-        var result = await _services.GetAllAsync();
+        await emailQueue.Writer.WriteAsync("Промо-письмо для получения игрушек", ct);
 
-        await emaiQueue.Writer.WriteAsync("Промо-письмо для получения игрушек");
-        return Ok(result);
+        return Ok(toys);
     }
 
     [ServiceFilter(typeof(ToyExFilter))]
     [HttpGet("test")]
-    public async Task<IActionResult> Test()
+    public IActionResult Test()
     {
-        var ex = new ArithmeticException();
-        throw ex;
+        throw new ArithmeticException("Тестовое исключение");
     }
 
-
-    [Authorize(Policy = "OnliItAdmin")]
+    [Authorize(Policy = "OnlyAdmin")]
     [ServiceFilter(typeof(LogFilter))]
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
     {
-        var sw = Stopwatch.StartNew();
-        var result =  await _services.GetByIdAsync(id);
-        sw.Stop();
+        var toy = await _toyService.GetByIdAsync(id, ct);
 
-        Console.WriteLine($"GetById занял {sw.ElapsedMilliseconds} мс");
-
-        if(result is null)
-        {
-            Console.WriteLine("Ноль");
-        }
-        return Ok(result);  
+        return toy is null
+            ? NotFound($"Игрушка с id {id} не найдена")
+            : Ok(toy);
     }
 
     [ServiceFilter(typeof(ApiKeyAuthFilter))]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateToyDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateToyDto dto, CancellationToken ct)
     {
-        var sw = Stopwatch.StartNew();
+        var toy = await _toyService.CreateToy(dto, ct);
 
-        var result = await _services.CreateToy(dto);
-
-        sw.Stop();
-
-        Console.WriteLine($"Create занял {sw.ElapsedMilliseconds} мс");
-
-        return Ok(result);
+        return toy is null
+            ? BadRequest("Категория или производитель не найдены")
+            : Ok(toy);
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> Delete([FromBody] CreateToyDto dto)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        var sw = Stopwatch.StartNew();
+        var removed = await _toyService.RemoveAsync(id, ct);
 
-        await _services.Remove(dto);
-        sw.Stop();
-
-        Console.WriteLine($"Delete занял {sw.ElapsedMilliseconds} мс");
-        return NoContent();
+        return removed ? NoContent() : NotFound($"Игрушка с id {id} не найдена");
     }
 }

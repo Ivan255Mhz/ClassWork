@@ -3,11 +3,17 @@ using System.Text.Json;
 
 namespace WebApplication4.Middleware;
 
+/// <summary>
+/// Оборачивает JSON-ответ в конверт { data, serverTime, version }.
+/// </summary>
 public class ResWrapMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public ResWrapMiddleware(RequestDelegate next) => _next = next;
+    public ResWrapMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -20,12 +26,12 @@ public class ResWrapMiddleware
 
             await _next(context); // исключение отсюда НЕ ловим — пусть идёт выше
 
-            var isJson = context.Response.ContentType is not null &&
-                         context.Response.ContentType.Contains("application/json");
+            var isJson = context.Response.ContentType is not null
+                         && context.Response.ContentType.Contains("application/json");
 
-            if (isJson &&
-                context.Response.StatusCode == StatusCodes.Status200OK &&
-                !context.Response.HasStarted)
+            if (isJson
+                && context.Response.StatusCode == StatusCodes.Status200OK
+                && !context.Response.HasStarted)
             {
                 buffer.Position = 0;
                 var body = await new StreamReader(buffer, Encoding.UTF8).ReadToEndAsync();
@@ -35,7 +41,6 @@ public class ResWrapMiddleware
             }
             else
             {
-                // отдаём ответ как есть
                 context.Response.Body = originalBody;
                 buffer.Position = 0;
                 await buffer.CopyToAsync(originalBody);
@@ -47,24 +52,24 @@ public class ResWrapMiddleware
         }
     }
 
-    private string WrapJson(string origJson)
+    private static string WrapJson(string originalJson)
     {
         try
         {
-            var je = JsonSerializer.Deserialize<JsonElement>(origJson);
+            var json = JsonSerializer.Deserialize<JsonElement>(originalJson);
 
-            var wrap = new
+            var wrapped = new
             {
-                data = je,
+                data = json,
                 serverTime = DateTime.UtcNow.ToString("O"),
                 version = "1.0"
             };
 
-            return JsonSerializer.Serialize(wrap);
+            return JsonSerializer.Serialize(wrapped);
         }
         catch
         {
-            return origJson; // это не JSON — отдаём без изменений
+            return originalJson; // это не JSON — отдаём без изменений
         }
     }
 }

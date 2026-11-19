@@ -1,6 +1,9 @@
 ﻿namespace WebApplication4.Data.Repositories;
 
-public interface IConteinName<T>
+/// <summary>
+/// Репозиторий с поиском по названию.
+/// </summary>
+public interface IContainsName<T>
 {
-    Task<T> ConteinNameAsync(string name,CancellationToken ct);
+    Task<T?> ContainsNameAsync(string name, CancellationToken ct = default);
 }

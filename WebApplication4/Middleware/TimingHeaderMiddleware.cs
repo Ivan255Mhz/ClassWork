@@ -2,6 +2,9 @@
 
 namespace WebApplication4.Middleware;
 
+/// <summary>
+/// Добавляет к ответу заголовок X-Time-Header со временем обработки запроса.
+/// </summary>
 public class TimingHeaderMiddleware
 {
     private readonly RequestDelegate _next;
@@ -13,14 +16,15 @@ public class TimingHeaderMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var sw = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
 
         context.Response.OnStarting(() =>
         {
-            sw.Stop();
-            context.Response.Headers.Append("X-Time-Header", sw.ElapsedMilliseconds.ToString());
+            stopwatch.Stop();
+            context.Response.Headers.Append("X-Time-Header", stopwatch.ElapsedMilliseconds.ToString());
             return Task.CompletedTask;
         });
+
         await _next(context);
     }
 }

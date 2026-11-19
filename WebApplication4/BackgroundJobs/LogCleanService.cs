@@ -1,20 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
 using WebApplication4.Data;
 
 namespace WebApplication4.BackgroundJobs;
 
+/// <summary>
+/// Периодически удаляет логи старше 7 дней.
+/// </summary>
 public class LogCleanService : BackgroundService
 {
+    private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan LogRetention = TimeSpan.FromDays(7);
 
     private readonly IServiceScopeFactory _scopeFactory;
-
     private readonly ILogger<LogCleanService> _logger;
+    private readonly WorkerHealthState _state;
 
-    public LogCleanService(IServiceScopeFactory scopeFactory, ILogger<LogCleanService> logger)
+    public LogCleanService(
+        IServiceScopeFactory scopeFactory,
+        ILogger<LogCleanService> logger,
+        WorkerHealthState state)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _state = state;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -23,35 +31,36 @@ public class LogCleanService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("Начали очистку логов");
             try
             {
-                using (var scope = _scopeFactory.CreateScope())
+                using var scope = _scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var cutoffDate = DateTime.UtcNow - LogRetention;
+                var oldLogs = await db.Logs
+                    .Where(log => log.Timestamp < cutoffDate)
+                    .ToListAsync(stoppingToken);
+
+                if (oldLogs.Count > 0)
                 {
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    db.Logs.RemoveRange(oldLogs);
+                    await db.SaveChangesAsync(stoppingToken);
 
-                    var CutDate = DateTime.UtcNow.AddDays(-7);
-                    var oldLogs = await db.Logs.Where(l => l.Timestamp < CutDate).ToListAsync(stoppingToken);
-
-                    if (oldLogs.Any())
-                    {
-                        db.Logs.RemoveRange(oldLogs);
-                        await db.SaveChangesAsync();
-
-                        _logger.LogInformation($"удалено {oldLogs.Count} старых логов");
-                    }
-                    else
-                    {
-                        _logger.LogInformation("Старых логов не найдено");
-                    }
+                    _logger.LogInformation("Удалено {Count} старых логов", oldLogs.Count);
                 }
+
+                _state.LastHeartbeat = DateTime.UtcNow;
             }
-            catch (Exception ex) 
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при очистке логов");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(1),stoppingToken);
+            await Task.Delay(CleanupInterval, stoppingToken);
         }
     }
 }

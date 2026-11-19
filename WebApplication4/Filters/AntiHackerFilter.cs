@@ -4,23 +4,22 @@ using WebApplication4.Data.Dtos;
 
 namespace WebApplication4.Filters;
 
+/// <summary>
+/// Пример action-фильтра: блокирует недопустимые слова в названии игрушки.
+/// </summary>
 public class AntiHackerFilter : IActionFilter
 {
-    public void OnActionExecuted(ActionExecutedContext context) { }
-    
-
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        
-
-        if (context.ActionArguments.TryGetValue("dto", out var arg)
-            && arg is CreateToyDto dto)
+        if (context.ActionArguments.TryGetValue("dto", out var argument)
+            && argument is CreateToyDto dto
+            && dto.Name.Contains("Хакер", StringComparison.OrdinalIgnoreCase))
         {
-            
-            if (dto.Name.Contains("Хакер"))
-            {
-                context.Result = new BadRequestObjectResult("Запрещеное слово");
-            }
+            context.Result = new BadRequestObjectResult("Запрещённое слово в названии");
         }
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
     }
 }

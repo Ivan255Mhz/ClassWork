@@ -2,10 +2,12 @@
 
 namespace WebApplication4.BackgroundJobs;
 
-public class EmailWorker:BackgroundService
+/// <summary>
+/// Читает очередь email-сообщений и «отправляет» их (учебная имитация).
+/// </summary>
+public class EmailWorker : BackgroundService
 {
     private readonly Channel<string> _queue;
-
     private readonly ILogger<EmailWorker> _logger;
 
     public EmailWorker(Channel<string> queue, ILogger<EmailWorker> logger)
@@ -20,9 +22,11 @@ public class EmailWorker:BackgroundService
 
         await foreach (var email in _queue.Reader.ReadAllAsync(stoppingToken))
         {
-            _logger.LogInformation($"Начинаем отправку  email {email}");
-            await Task.Delay(3000, stoppingToken);
-            _logger.LogInformation($"Email отправелн  {email}");
+            _logger.LogInformation("Начинаем отправку email: {Email}", email);
+
+            await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
+
+            _logger.LogInformation("Email отправлен: {Email}", email);
         }
     }
 }

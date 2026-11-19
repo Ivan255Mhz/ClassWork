@@ -3,17 +3,21 @@ using WebApplication4.Entities;
 
 namespace WebApplication4.Data;
 
-public class AppDbContext:DbContext
+public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options):base(options)
-    {}
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
 
     public DbSet<Toy> Toys => Set<Toy>();
+
     public DbSet<Category> Categories => Set<Category>();
+
     public DbSet<Manufacture> Manufactures => Set<Manufacture>();
+
     public DbSet<LogEntry> Logs => Set<LogEntry>();
 
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<AppLifeEvent> Events => Set<AppLifeEvent>();
 }
-

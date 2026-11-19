@@ -1,89 +1,83 @@
 @host = https://localhost:7059
 
-
 ###
-GET {{host}}/admin
-###
-GET {{host}}/api/toy/error
-
-###
-GET {{host}}/api/test
-Authorization: SecretPass
-
-
-###
-GET {{host}}/api/test/9
-Authorization: SecretPass
-
+# Проверка доступности БД
 GET {{host}}/api/home
-X-Client-Version: 2.1
-Accept: application/json
-
 
 ###
-
-GET {{host}}/api/category
-Accept: application/json
-
-
-###
-
-POST {{host}}/api/category/����
-
-###
-GET {{host}}/api/manufactor
-Accept: application/json
-
-###
-
-POST {{host}}/api/manufactor/����������
-###
-
-
-
-POST {{host}}/api/toy?name=�������&prise=50
-
-
-
-###
-
+# Все игрушки
 GET {{host}}/api/toy
 Accept: application/json
 
 ###
-
-POST {{host}}/api/toy/�������/100/2/1
-
-###
-
-GET {{host}}/api/toy?cat=����&man=������
+# Игрушка по id
+GET {{host}}/api/toy/1
 Accept: application/json
 
+###
+# Тестовая ошибка (глобальный ExceptionHandlingMiddleware)
+GET {{host}}/api/toy/error
 
 ###
+# Создать игрушку
 POST {{host}}/api/toy
-Content-type: application/json
+Content-Type: application/json
 
 {
-  "name": "�����",
-  "prise": "550",
-  "categoryid": "1",
-  "manufacturerid": "1"
+  "name": "Обруч",
+  "prise": 550,
+  "categoryId": 1,
+  "manufacturerId": 1
 }
+
+###
+# Категории
+GET {{host}}/api/category
+Accept: application/json
+
+###
+POST {{host}}/api/category/Спорт
 
 ###
 DELETE {{host}}/api/category/1
 
-
+###
+# Производители
+GET {{host}}/api/manufacturer
+Accept: application/json
 
 ###
+POST {{host}}/api/manufacturer/ДетскийМир
 
-PUT {{host}}/api/toy/7
-Content-type: application/json
+###
+# Логин: получаем JWT
+# @name login
+POST {{host}}/api/auth/login?userName=admin&password=1234
+
+###
+@token = {{login.response.body.token}}
+
+# Endpoint с политикой OnlyAdmin
+GET {{host}}/api/test/1
+Authorization: Bearer {{token}}
+
+###
+# Endpoint с ApiKeyAuthFilter
+POST {{host}}/api/test
+X-Api-Key: demo-key
+Content-Type: application/json
 
 {
-  "name": "�����������",
-  "prise": "9900",
-  "categoryid": "1",
-  "manufacturerid": "1"
+  "name": "Кубик",
+  "prise": 100,
+  "categoryId": 1,
+  "manufacturerId": 1
 }
+
+###
+# Состояние фоновых задач
+GET {{host}}/api/test/state
+
+###
+# Демонстрация exception-фильтра
+GET {{host}}/api/test/test

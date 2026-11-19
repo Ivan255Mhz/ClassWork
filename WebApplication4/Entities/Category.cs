@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication4.Entities;
 
-
 [Table("Categories")]
 public class Category
 {
@@ -17,4 +16,3 @@ public class Category
 
     public ICollection<Toy> Toys { get; set; } = new List<Toy>();
 }
-

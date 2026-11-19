@@ -1,14 +1,15 @@
 ﻿using WebApplication4.Data;
 using WebApplication4.Entities;
 
-namespace WebApplication4.Servise;
+namespace WebApplication4.Services;
 
+/// <summary>
+/// Пишет записи журнала в базу данных.
+/// </summary>
 public class DbLogger : IDbLogger
 {
     private readonly AppDbContext _context;
     private readonly ILogger<DbLogger> _logger;
-
-   
 
     public DbLogger(AppDbContext context, ILogger<DbLogger> logger)
     {
@@ -23,7 +24,7 @@ public class DbLogger : IDbLogger
             Timestamp = DateTime.UtcNow,
             Level = level,
             Message = message,
-            Detalis = details ?? ""
+            Detalis = details ?? string.Empty
         };
 
         try
@@ -33,16 +34,17 @@ public class DbLogger : IDbLogger
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Неудачная запись в db {ex.Message} , {ex.StackTrace}");
+            _logger.LogError(ex, "Не удалось записать лог в БД");
         }
-
     }
-
 }
 
-public static class LogLevel
+/// <summary>
+/// Уровни логирования для записей в БД.
+/// </summary>
+public static class DbLogLevel
 {
     public const string Info = "[INFO]";
     public const string Error = "[ERROR]";
-    public const string Worning = "[WORN]";
+    public const string Warning = "[WARN]";
 }

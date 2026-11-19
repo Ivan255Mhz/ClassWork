@@ -16,4 +16,3 @@ public class Manufacture
 
     public ICollection<Toy> Toys { get; set; } = new List<Toy>();
 }
-
