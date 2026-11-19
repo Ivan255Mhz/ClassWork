@@ -1,4 +1,4 @@
-﻿using WebApplication4.Data.Dtos;
+using WebApplication4.Data.Dtos;
 using WebApplication4.Data.Repositories;
 using WebApplication4.Entities;
 
@@ -80,5 +80,11 @@ public class ToyService : IToyService
         var manufacture = await _manufactureRepository.GetByIdAsync(dto.ManufacturerId, ct);
 
         return category is not null && manufacture is not null;
+    }
+
+    public async Task UpdateAsync(Toy toy, CancellationToken ct = default)
+    {
+        _toyRepository.Update(toy);
+        await _toyRepository.SaveChangesAsync(ct);
     }
 }

@@ -54,6 +54,7 @@ builder.Services.AddDataBase(builder.Configuration);
 // --- Сервисы приложения ---
 builder.Services.AddScoped<IToyService, ToyService>();
 builder.Services.AddScoped<IDbLogger, DbLogger>();
+builder.Services.AddScoped<IFileStorege, LocalFileStorage>();
 
 // --- Фильтры ---
 builder.Services.AddScoped<ToyExFilter>();
@@ -83,6 +84,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseRouting();
 

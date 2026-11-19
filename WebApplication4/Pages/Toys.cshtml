@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model WebApplication4.Pages.ToysModel
 
 <h1>Игрушки</h1>
@@ -11,7 +11,17 @@ else
 {
     foreach (var toy in Model.Toys)
     {
-        <p>@toy.Name — @toy.Prise</p>
+        @if(!string.IsNullOrWhiteSpace(toy.ImageUrl))
+        {
+            <img src="@toy.ImageUrl" alt="@toy.Name"/>
+        }
+        else
+        {
+            <div>Нет фото</div>
+        }
+
+         <h3>@toy.Name</h3>
+         <p>@toy.Prise</p>
     }
 }
 

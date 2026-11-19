@@ -1,4 +1,5 @@
-﻿using WebApplication4.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication4.Data;
 using WebApplication4.Entities;
 
 namespace WebApplication4.Services;
@@ -34,6 +35,10 @@ public class DbLogger : IDbLogger
         }
         catch (Exception ex)
         {
+            // Убираем неудачную запись из ChangeTracker,
+            // иначе она будет ломать все следующие SaveChanges в этом запросе.
+            _context.Entry(log).State = EntityState.Detached;
+
             _logger.LogError(ex, "Не удалось записать лог в БД");
         }
     }

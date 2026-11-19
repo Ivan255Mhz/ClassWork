@@ -1,4 +1,4 @@
-﻿namespace WebApplication4.Data.Repositories;
+namespace WebApplication4.Data.Repositories;
 
 /// <summary>
 /// Базовые операции репозитория.
@@ -12,6 +12,8 @@ public interface IRepository<T> where T : class
     Task AddAsync(T entity, CancellationToken ct = default);
 
     void Remove(T entity);
+
+    void Update(T entity);
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

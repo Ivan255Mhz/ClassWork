@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication4.Entities;
@@ -15,6 +15,9 @@ public class Toy
     public string? Name { get; set; }
 
     public decimal Prise { get; set; }
+
+    [MaxLength(300)]
+    public string? ImageUrl { get; set; }
 
     public int CategoryId { get; set; }
 

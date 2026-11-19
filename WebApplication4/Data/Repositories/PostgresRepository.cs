@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication4.Data.Repositories;
 
@@ -37,5 +37,10 @@ public class PostgresRepository<T> : IRepository<T> where T : class
     public async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         return await _context.SaveChangesAsync(ct);
+    }
+
+    public void Update(T entity)
+    {
+        _context.Set<T>().Update(entity);
     }
 }

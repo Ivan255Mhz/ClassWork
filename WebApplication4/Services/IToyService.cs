@@ -1,4 +1,4 @@
-﻿using WebApplication4.Data.Dtos;
+using WebApplication4.Data.Dtos;
 using WebApplication4.Entities;
 
 namespace WebApplication4.Services;
@@ -17,4 +17,6 @@ public interface IToyService
     Task<Toy?> GetByIdAsync(int id, CancellationToken ct = default);
 
     Task<bool> RemoveAsync(int id, CancellationToken ct = default);
+
+    Task UpdateAsync(Toy toy, CancellationToken ct = default);
 }

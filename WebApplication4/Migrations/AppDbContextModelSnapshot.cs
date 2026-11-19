@@ -116,6 +116,10 @@ namespace WebApplication4.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<int>("ManufactureId")
                         .HasColumnType("integer");
 
