@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using WebApplication4.BackgroundJobs;
 using WebApplication4.Data;
+using WebApplication4.Endpoints;
 using WebApplication4.Filters;
 using WebApplication4.Middleware;
 using WebApplication4.Services;
@@ -97,6 +98,7 @@ app.UseMiddleware<AuditBodyMiddleware>();
 app.UseMiddleware<UserMiddleware>();
 
 app.MapControllers();
+app.MapToyEndpoints();
 app.MapRazorPages();
 
 app.Run();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApplication4.Data.Dtos;
 using WebApplication4.Services;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace WebApplication4.Controllers;
 
@@ -15,6 +16,8 @@ public class ToyController : ControllerBase
     private readonly ILogger<ToyController> _logger;
     private readonly IDbLogger _dbLogger;
     private readonly IFileStorege _fileStorege;
+
+    private static readonly FileExtensionContentTypeProvider contentTypeProvider = new();
 
     public ToyController(IToyService toyService, ILogger<ToyController> logger, IDbLogger dbLogger, IFileStorege fileStorege)
     {
@@ -107,6 +110,28 @@ public class ToyController : ControllerBase
 
         return Ok(new { imageUrl });
     }
+
+    [HttpGet("{id:int}/image")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetImage(int id, CancellationToken ct)
+    {
+        var toy = await _toyService.GetByIdAsync(id, ct);
+
+        if (toy is null || string.IsNullOrWhiteSpace(toy.ImageUrl))
+            return BadRequest($"У игрушки с id {id} нет картинки");
+
+        var physicalPath = _fileStorege.GetPhysicalPath(toy.ImageUrl);
+
+        if (physicalPath is null)
+            return NotFound("Файл картинки не найден на диске ");
+
+        if (!contentTypeProvider.TryGetContentType(physicalPath, out var contentType))
+            contentType = "application/octet-stream";
+
+        return PhysicalFile(physicalPath, contentType);
+    }
+
 
     /// <summary>
     /// Тестовый endpoint для проверки обработки ошибок.

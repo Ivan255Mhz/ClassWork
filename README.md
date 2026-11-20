@@ -69,6 +69,29 @@ WebApplication4/
 
 Готовые запросы лежат в `WebApplication4/WebApplication4.http`.
 
+## Второй проект: ToyApi
+
+В решении есть отдельный проект `ToyApi` — заготовка Minimal API, которая смотрит в **ту же базу** `toyshop`.
+
+Что уже готово:
+
+- EF Core + Npgsql;
+- `ToyDbContext` и сущности `Toy`, `Category`, `Manufacture`;
+- строка подключения;
+- Swagger;
+- `/health` и `/health/db` для проверки запуска и подключения к БД.
+
+Запуск:
+
+```bash
+dotnet run --project ToyApi
+```
+
+- Swagger: `https://localhost:7090/swagger`
+- HTTP: `http://localhost:5090`
+
+В `ToyApi` студенты пишут endpoint'ы Minimal API. Миграции остаются в `WebApplication4`: схемой владеет основной проект. Подробности — в `ToyApi/README.md`.
+
 ## Аутентификация
 
 Тестовый пользователь: `admin` / `1234`.

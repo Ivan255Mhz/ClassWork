@@ -1,0 +1,11 @@
+@host = https://localhost:7090
+
+### Проверка, что приложение живо
+GET {{host}}/health
+
+###
+# TODO: здесь добавляем запросы к будущим endpoint'ам.
+#
+# Пример:
+# GET {{host}}/api/toys
+# Accept: application/json

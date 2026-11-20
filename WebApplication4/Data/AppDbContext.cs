@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using WebApplication4.Entities;
 
 namespace WebApplication4.Data;
@@ -20,4 +20,6 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
 
     public DbSet<AppLifeEvent> Events => Set<AppLifeEvent>();
+
+    public DbSet<ClientSession> Sessions => Set<ClientSession>();
 }

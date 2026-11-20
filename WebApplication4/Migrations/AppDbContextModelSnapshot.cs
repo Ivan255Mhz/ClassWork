@@ -60,6 +60,55 @@ namespace WebApplication4.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("WebApplication4.Entities.ClientSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Browser")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Citi")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DeviceType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IpHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Os")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Scrheigth")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Scrnwidth")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TimeZone")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClientSesions");
+                });
+
             modelBuilder.Entity("WebApplication4.Entities.LogEntry", b =>
                 {
                     b.Property<int>("Id")

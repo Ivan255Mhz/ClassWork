@@ -36,6 +36,18 @@ public class LocalFileStorage : IFileStorege
         return Task.CompletedTask;
     }
 
+    public string? GetPhysicalPath(string? imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl))
+            return null;
+
+        var fileName = Path.GetFileName(imageUrl);
+        var fullPatc = Path.Combine(GetUploadFolder(), fileName);
+
+        return File.Exists(fullPatc) ? fullPatc: null;
+
+    }
+
     public async Task<string> SaveToyImageAsync(IFormFile file, CancellationToken ct = default)
     {
         if (file.Length == 0)
@@ -73,4 +85,6 @@ public class LocalFileStorage : IFileStorege
 
         return folder;
     }
+
+
 }

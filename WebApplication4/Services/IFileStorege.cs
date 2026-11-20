@@ -4,4 +4,7 @@ public interface IFileStorege
 {
     Task<string> SaveToyImageAsync(IFormFile file, CancellationToken ct = default);
     Task DeleteAsync(string? ImageUrl,CancellationToken ct =default);
+
+    string? GetPhysicalPath(string? imageUrl);
+    
 }
